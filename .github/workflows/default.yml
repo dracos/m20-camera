@@ -1,0 +1,27 @@
+name: Fetch latest data
+
+on:
+  schedule:
+  - cron: "*/5 * * * *"
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out this repo
+      uses: actions/checkout@v2
+
+    - name: Fetch picture
+      run: |-
+        TIME=$(date -Is)
+        mkdir -p images
+        curl -H "Referer: http://public.highwaystrafficcameras.co.uk/cctvpublicaccess/html/16908.html" -o images/$TIME.jpeg -s http://public.highwaystrafficcameras.co.uk/cctvpublicaccess/images/16908.jpg?$TIME
+
+    - uses: jruipinto/ImageMagick-action@v1
+      with:
+        command: 'convert -delay 50 -loop 1 images/*.jpeg traffic-camera.gif'
+
+    - uses: mikeal/publish-to-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BRANCH_NAME: main
