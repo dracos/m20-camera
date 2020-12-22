@@ -14,12 +14,18 @@ jobs:
     - name: Fetch picture
       run: |-
         TIME=$(date -Is)
-        mkdir -p images
-        curl -H "Referer: http://public.highwaystrafficcameras.co.uk/cctvpublicaccess/html/16908.html" -o images/$TIME.jpeg -s http://public.highwaystrafficcameras.co.uk/cctvpublicaccess/images/16908.jpg?$TIME
+        mkdir -p images/16908
+        curl -H "Referer: http://public.highwaystrafficcameras.co.uk/cctvpublicaccess/html/16908.html" -o images/16908/$TIME.jpeg -s http://public.highwaystrafficcameras.co.uk/cctvpublicaccess/images/16908.jpg?$TIME
+        mkdir -p images/16993
+        curl -H "Referer: http://public.highwaystrafficcameras.co.uk/cctvpublicaccess/html/16993.html" -o images/16993/$TIME.jpeg -s http://public.highwaystrafficcameras.co.uk/cctvpublicaccess/images/16993.jpg?$TIME
 
     - uses: jruipinto/ImageMagick-action@v1
       with:
-        command: 'convert -delay 50 -loop 1 images/*.jpeg traffic-camera.gif'
+        command: 'convert -delay 20 -loop 1 -layers optimize images/16908/*.jpeg traffic-camera-16908.gif'
+
+    - uses: jruipinto/ImageMagick-action@v1
+      with:
+        command: 'convert -loop 1 -layers optimize -delay 580 images/16993/2020-12-22T09:55:05+00:00.jpeg -delay 20 images/16993/*.jpeg traffic-camera-16993.gif'
 
     - uses: mikeal/publish-to-github-action@master
       env:
