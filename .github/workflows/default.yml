@@ -2,7 +2,7 @@ name: Fetch latest data
 
 on:
   schedule:
-  - cron: "*/5 * * * *"
+  - cron: "*/30 * * * *"
 
 jobs:
   fetch:
@@ -10,6 +10,8 @@ jobs:
     steps:
     - name: Check out this repo
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 2
 
     - name: Fetch picture
       run: |-
@@ -27,7 +29,15 @@ jobs:
       with:
         command: 'convert -loop 1 -layers optimize -delay 580 images/16993/2020-12-22T09:55:05+00:00.jpeg -delay 20 images/16993/*.jpeg traffic-camera-16993.gif'
 
-    - uses: mikeal/publish-to-github-action@master
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        BRANCH_NAME: main
+    - name: Push to GitHub
+      run: |-
+        remote_repo="https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+        git config user.name "Automated Publisher"
+        git config user.email "actions@users.noreply.github.com"
+        git remote add publisher "${remote_repo}"
+        git show-ref
+        git branch --verbose
+        git checkout main
+        git add -A
+        git commit --amend --no-edit || exit 0
+        git push --force publisher main
